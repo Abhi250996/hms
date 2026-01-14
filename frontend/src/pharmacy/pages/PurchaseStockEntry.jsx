@@ -1,7 +1,8 @@
+// src/pharmacy/pages/PurchaseStockEntry.jsx
 import { useState } from "react";
-import { PharmacyController } from "../controller/pharmacy.controller";
+import { pharmacyRepository } from "../repository/pharmacy.repository";
 
-export default function PurchaseStockEntry() {
+const PurchaseStockEntry = () => {
   const [form, setForm] = useState({
     name: "",
     batch: "",
@@ -10,37 +11,108 @@ export default function PurchaseStockEntry() {
     price: "",
   });
 
-  const submit = async () => {
-    await PharmacyController.addMedicine(form);
-    alert("Medicine added");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
+
+    try {
+      await pharmacyRepository.addMedicine({
+        name: form.name,
+        batch: form.batch,
+        expiryDate: form.expiryDate,
+        quantity: Number(form.quantity),
+        price: Number(form.price),
+      });
+      setMessage("Stock added successfully");
+      setForm({
+        name: "",
+        batch: "",
+        expiryDate: "",
+        quantity: "",
+        price: "",
+      });
+    } catch (err) {
+      setMessage("Failed to add stock");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div>
-      <h2>Add Medicine</h2>
+    <div className="p-6 max-w-xl mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Purchase / Add Medicine Stock</h2>
 
-      <input
-        placeholder="Name"
-        onChange={(e) => setForm({ ...form, name: e.target.value })}
-      />
-      <input
-        placeholder="Batch"
-        onChange={(e) => setForm({ ...form, batch: e.target.value })}
-      />
-      <input
-        type="date"
-        onChange={(e) => setForm({ ...form, expiryDate: e.target.value })}
-      />
-      <input
-        placeholder="Quantity"
-        onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-      />
-      <input
-        placeholder="Price"
-        onChange={(e) => setForm({ ...form, price: e.target.value })}
-      />
+      <form onSubmit={submit} className="bg-white shadow rounded p-6 space-y-4">
+        <input
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          placeholder="Medicine Name"
+          className="w-full border p-2 rounded"
+          required
+        />
 
-      <button onClick={submit}>Save</button>
+        <input
+          name="batch"
+          value={form.batch}
+          onChange={handleChange}
+          placeholder="Batch Number"
+          className="w-full border p-2 rounded"
+          required
+        />
+
+        <input
+          type="date"
+          name="expiryDate"
+          value={form.expiryDate}
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
+          required
+        />
+
+        <input
+          type="number"
+          name="quantity"
+          value={form.quantity}
+          onChange={handleChange}
+          placeholder="Quantity"
+          className="w-full border p-2 rounded"
+          required
+        />
+
+        <input
+          type="number"
+          step="0.01"
+          name="price"
+          value={form.price}
+          onChange={handleChange}
+          placeholder="Price per unit"
+          className="w-full border p-2 rounded"
+          required
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-green-600 text-white py-2 rounded"
+        >
+          {loading ? "Saving..." : "Add Stock"}
+        </button>
+
+        {message && (
+          <p className="text-center text-sm text-blue-600">{message}</p>
+        )}
+      </form>
     </div>
   );
-}
+};
+
+export default PurchaseStockEntry;

@@ -1,44 +1,196 @@
+// src/pharmacy/pages/MedicineInventory.jsx
 import { useEffect, useState } from "react";
-import { PharmacyController } from "../controller/pharmacy.controller";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMedicines, addMedicine, updateMedicine } from "../pharmacySlice";
 
-export default function MedicineInventory() {
-  const [medicines, setMedicines] = useState([]);
+const emptyForm = {
+  name: "",
+  batch: "",
+  expiryDate: "",
+  quantity: "",
+  price: "",
+};
+
+const MedicineInventory = () => {
+  const dispatch = useDispatch();
+  const { medicines = [], loading } = useSelector(
+    (state) => state.pharmacy || {}
+  );
+
+  const [form, setForm] = useState(emptyForm);
+  const [editId, setEditId] = useState(null);
 
   useEffect(() => {
-    loadMedicines();
-  }, []);
+    dispatch(fetchMedicines());
+  }, [dispatch]);
 
-  const loadMedicines = async () => {
-    const data = await PharmacyController.getMedicines();
-    setMedicines(data);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const submit = (e) => {
+    e.preventDefault();
+
+    const payload = {
+      ...form,
+      quantity: Number(form.quantity),
+      price: Number(form.price),
+    };
+
+    if (editId) {
+      dispatch(updateMedicine({ id: editId, data: payload }));
+    } else {
+      dispatch(addMedicine(payload));
+    }
+
+    setForm(emptyForm);
+    setEditId(null);
+  };
+
+  const startEdit = (m) => {
+    setEditId(m.id);
+    setForm({
+      name: m.name || "",
+      batch: m.batch || "",
+      expiryDate: m.expiryDate || "",
+      quantity: m.quantity ?? "",
+      price: m.price ?? "",
+    });
+  };
+
+  const cancelEdit = () => {
+    setForm(emptyForm);
+    setEditId(null);
   };
 
   return (
-    <div>
-      <h2>Medicine Inventory</h2>
+    <div className="p-6 space-y-6">
+      <h1 className="text-2xl font-bold">Medicine Inventory</h1>
 
-      <table border="1">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Batch</th>
-            <th>Expiry</th>
-            <th>Qty</th>
-            <th>Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          {medicines.map((m) => (
-            <tr key={m.id}>
-              <td>{m.name}</td>
-              <td>{m.batch}</td>
-              <td>{m.expiryDate}</td>
-              <td>{m.quantity}</td>
-              <td>{m.price}</td>
+      {/* ADD / EDIT FORM */}
+      <form
+        onSubmit={submit}
+        className="grid grid-cols-2 gap-4 bg-white p-4 rounded shadow"
+      >
+        <input
+          className="border p-2 rounded"
+          name="name"
+          placeholder="Medicine Name"
+          value={form.name}
+          onChange={handleChange}
+          required
+        />
+        <input
+          className="border p-2 rounded"
+          name="batch"
+          placeholder="Batch"
+          value={form.batch}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="date"
+          className="border p-2 rounded"
+          name="expiryDate"
+          value={form.expiryDate}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="number"
+          className="border p-2 rounded"
+          name="quantity"
+          placeholder="Quantity"
+          value={form.quantity}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="number"
+          step="0.01"
+          className="border p-2 rounded"
+          name="price"
+          placeholder="Price"
+          value={form.price}
+          onChange={handleChange}
+          required
+        />
+
+        <div className="col-span-2 flex gap-3">
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+          >
+            {editId ? "Update Medicine" : "Add Medicine"}
+          </button>
+
+          {editId && (
+            <button
+              type="button"
+              onClick={cancelEdit}
+              className="border px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+      </form>
+
+      {/* LIST */}
+      <div className="bg-white rounded shadow overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="p-2 text-left">Name</th>
+              <th className="p-2">Batch</th>
+              <th className="p-2">Expiry</th>
+              <th className="p-2">Qty</th>
+              <th className="p-2">Price</th>
+              <th className="p-2">Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {loading && (
+              <tr>
+                <td colSpan="6" className="p-4 text-center">
+                  Loading...
+                </td>
+              </tr>
+            )}
+
+            {!loading &&
+              medicines.map((m) => (
+                <tr key={m.id} className="border-t">
+                  <td className="p-2">{m.name}</td>
+                  <td className="p-2 text-center">{m.batch}</td>
+                  <td className="p-2 text-center">{m.expiryDate}</td>
+                  <td className="p-2 text-center">{m.quantity}</td>
+                  <td className="p-2 text-center">₹{m.price}</td>
+                  <td className="p-2 text-center">
+                    <button
+                      onClick={() => startEdit(m)}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))}
+
+            {!loading && medicines.length === 0 && (
+              <tr>
+                <td colSpan="6" className="p-4 text-center text-gray-500">
+                  No medicines found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
-}
+};
+
+export default MedicineInventory;

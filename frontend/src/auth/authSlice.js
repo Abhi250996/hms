@@ -1,3 +1,4 @@
+// src/auth/authSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { authController } from "./controller/auth.controller";
 
@@ -17,7 +18,7 @@ export const fetchProfile = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       return await authController.getProfile();
-    } catch {
+    } catch (err) {
       return rejectWithValue("Unauthorized");
     }
   }
@@ -35,6 +36,8 @@ const authSlice = createSlice({
     logout(state) {
       state.user = null;
       state.isAuthenticated = false;
+      state.loading = false;
+      state.error = null;
       localStorage.clear();
     },
   },
@@ -47,15 +50,25 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-        state.user = action.payload.data.user;
+        state.user = action.payload?.data?.user || null;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(fetchProfile.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(fetchProfile.fulfilled, (state, action) => {
-        state.user = action.payload.data;
+        state.loading = false;
+        state.user = action.payload?.data || null;
         state.isAuthenticated = true;
+      })
+      .addCase(fetchProfile.rejected, (state) => {
+        state.loading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+        localStorage.clear();
       });
   },
 });

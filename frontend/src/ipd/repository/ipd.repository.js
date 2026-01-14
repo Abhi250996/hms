@@ -1,15 +1,28 @@
+// src/ipd/repository/ipd.repository.js
 import api from "../../core/api/axios";
 
-export const admitPatientApi = (payload) => api.post("/api/ipd", payload);
+export const ipdRepository = {
+  admit(data) {
+    return api.post("/api/ipd", data);
+  },
 
-export const getIpdListApi = () => api.get("/api/ipd");
+  getAll() {
+    return api.get("/api/ipd");
+  },
 
-export const getIpdByIdApi = (id) => api.get(`/api/ipd/${id}`);
+  getById(id) {
+    return api.get(`/api/ipd/${id}`);
+  },
 
-export const updateIpdApi = (id, payload) => api.put(`/api/ipd/${id}`, payload);
+  update(id, data) {
+    return api.put(`/api/ipd/${id}`, data);
+  },
 
-export const dischargeIpdApi = (id, payload) =>
-  api.put(`/api/ipd/${id}/discharge`, payload);
+  discharge(id, data) {
+    return api.put(`/api/ipd/${id}/discharge`, data);
+  },
 
-export const getPatientIpdHistoryApi = (patientId) =>
-  api.get(`/api/ipd/patient/${patientId}`);
+  getPatientHistory(patientId) {
+    return api.get(`/api/ipd/patient/${patientId}`);
+  },
+};

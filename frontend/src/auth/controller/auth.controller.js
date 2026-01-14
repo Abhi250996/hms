@@ -1,10 +1,11 @@
+// src/auth/controller/auth.controller.js
 import { authRepository } from "../repository/auth.repository";
 
 export const authController = {
   async login(payload) {
     const response = await authRepository.login(payload);
 
-    const token = response.data?.data?.token;
+    const token = response?.data?.data?.token;
     if (token) {
       localStorage.setItem("token", token);
     }
@@ -23,7 +24,8 @@ export const authController = {
   },
 
   logout() {
-    localStorage.clear();
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     window.location.href = "/login";
   },
 };

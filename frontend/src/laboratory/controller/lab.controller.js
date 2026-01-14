@@ -1,35 +1,34 @@
-import LabRepository from "../repository/lab.repository";
+// src/laboratory/controller/lab.controller.js
+import { labRepository } from "../repository/lab.repository";
 
-const LabController = {
-  async createTest(payload) {
-    const res = await LabRepository.createTest(payload);
+export const labController = {
+  async createTestOrder(payload) {
+    const res = await labRepository.createTestOrder(payload);
     return res.data;
   },
 
   async getAllTests() {
-    const res = await LabRepository.getAllTests();
+    const res = await labRepository.getAllTests();
     return res.data;
   },
 
   async getTestById(id) {
-    const res = await LabRepository.getTestById(id);
+    const res = await labRepository.getTestById(id);
     return res.data;
   },
 
   async markSampleCollected(id) {
-    const res = await LabRepository.markSampleCollected(id);
+    const res = await labRepository.markSampleCollected(id);
     return res.data;
   },
 
-  async enterResult(id, payload) {
-    const res = await LabRepository.enterResult(id, payload);
+  async enterTestResult(id, payload) {
+    const res = await labRepository.enterTestResult(id, payload);
     return res.data;
   },
 
-  async getPatientHistory(patientId) {
-    const res = await LabRepository.getPatientHistory(patientId);
+  async getPatientLabHistory(patientId) {
+    const res = await labRepository.getPatientLabHistory(patientId);
     return res.data;
   },
 };
-
-export default LabController;

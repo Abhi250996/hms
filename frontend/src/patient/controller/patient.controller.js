@@ -1,4 +1,4 @@
-import { patientRepository } from "../repository/patient.repository";
+// src/patient/controller/patient.controller.js
 import { patientRepository } from "../repository/patient.repository";
 
 export const patientController = {
@@ -23,13 +23,15 @@ export const patientController = {
   },
 
   async deletePatient(id) {
-    return await patientRepository.remove(id);
+    const res = await patientRepository.remove(id);
+    return res.data;
   },
 
   async uploadDocuments(id, files) {
     const formData = new FormData();
     files.forEach((file) => formData.append("documents", file));
-    return await patientRepository.uploadDocuments(id, formData);
+    const res = await patientRepository.uploadDocuments(id, formData);
+    return res.data;
   },
 
   async getHistory(id) {

@@ -1,55 +1,64 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchPatients } from "../patientSlice";
+// src/patient/pages/PatientList.jsx
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { patientController } from "../controller/patient.controller";
+import PatientCard from "../components/PatientCard";
 
-const PatientList = () => {
-  const dispatch = useDispatch();
+export default function PatientList() {
   const navigate = useNavigate();
-
-  const { list, loading } = useSelector((state) => state.patient);
+  const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    dispatch(fetchPatients());
-  }, [dispatch]);
+    loadPatients();
+  }, []);
 
-  if (loading) return <p>Loading patients...</p>;
+  const loadPatients = async () => {
+    try {
+      const data = await patientController.getPatients();
+      setPatients(data || []);
+    } catch (err) {
+      alert(err.message || "Failed to fetch patients");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this patient?")) return;
+    await patientController.deletePatient(id);
+    loadPatients();
+  };
+
+  if (loading) return <p className="p-6">Loading patients...</p>;
 
   return (
-    <div>
-      <h2>Patient List</h2>
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-semibold">Patients</h2>
+        <button
+          onClick={() => navigate("/patients/new")}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          + Register Patient
+        </button>
+      </div>
 
-      <table border="1" width="100%">
-        <thead>
-          <tr>
-            <th>Patient Code</th>
-            <th>Name</th>
-            <th>Mobile</th>
-            <th>Gender</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {list.map((p) => (
-            <tr key={p.id}>
-              <td>{p.patientCode || p.patientId}</td>
-              <td>{p.name}</td>
-              <td>{p.mobile}</td>
-              <td>{p.gender}</td>
-              <td>{p.status}</td>
-              <td>
-                <button onClick={() => navigate(`/patients/${p.id}`)}>
-                  View
-                </button>
-              </td>
-            </tr>
+      {patients.length === 0 ? (
+        <p className="text-gray-500">No patients found</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {patients.map((patient) => (
+            <PatientCard
+              key={patient.id}
+              patient={patient}
+              onView={() => navigate(`/patients/${patient.id}`)}
+              onEdit={() => navigate(`/patients/${patient.id}/edit`)}
+              onDelete={() => handleDelete(patient.id)}
+            />
           ))}
-        </tbody>
-      </table>
+        </div>
+      )}
     </div>
   );
-};
-
-export default PatientList;
+}

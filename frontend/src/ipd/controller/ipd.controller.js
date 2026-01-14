@@ -1,31 +1,34 @@
-import * as ipdRepo from "../repository/ipd.repository";
+// src/ipd/controller/ipd.controller.js
+import { ipdRepository } from "../repository/ipd.repository";
 
-export const admitPatient = async (data) => {
-  const res = await ipdRepo.admitPatientApi(data);
-  return res.data;
-};
+export const ipdController = {
+  async admitPatient(payload) {
+    const res = await ipdRepository.admit(payload);
+    return res.data;
+  },
 
-export const getIpdList = async () => {
-  const res = await ipdRepo.getIpdListApi();
-  return res.data;
-};
+  async getIpdList() {
+    const res = await ipdRepository.getAll();
+    return res.data;
+  },
 
-export const getIpdById = async (id) => {
-  const res = await ipdRepo.getIpdByIdApi(id);
-  return res.data;
-};
+  async getIpdById(id) {
+    const res = await ipdRepository.getById(id);
+    return res.data;
+  },
 
-export const updateIpd = async (id, data) => {
-  const res = await ipdRepo.updateIpdApi(id, data);
-  return res.data;
-};
+  async updateIpd(id, payload) {
+    const res = await ipdRepository.update(id, payload);
+    return res.data;
+  },
 
-export const dischargeIpd = async (id, data) => {
-  const res = await ipdRepo.dischargeIpdApi(id, data);
-  return res.data;
-};
+  async dischargePatient(id, payload) {
+    const res = await ipdRepository.discharge(id, payload);
+    return res.data;
+  },
 
-export const getPatientIpdHistory = async (patientId) => {
-  const res = await ipdRepo.getPatientIpdHistoryApi(patientId);
-  return res.data;
+  async getPatientIpdHistory(patientId) {
+    const res = await ipdRepository.getPatientHistory(patientId);
+    return res.data;
+  },
 };

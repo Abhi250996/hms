@@ -1,19 +1,32 @@
+// src/billing/repository/billing.repository.js
 import api from "../../core/api/axios";
 
 export const BillingRepository = {
-  createBill: (payload) => api.post("/billing", payload),
+  createBill(data) {
+    return api.post("/api/billing", data);
+  },
 
-  getBillById: (id) => api.get(`/billing/${id}`),
+  getBillById(id) {
+    return api.get(`/api/billing/${id}`);
+  },
 
-  getPatientBills: (patientId) => api.get(`/billing/patient/${patientId}`),
+  getPatientBills(patientId) {
+    return api.get(`/api/billing/patient/${patientId}`);
+  },
 
-  collectPayment: (payload) => api.post("/billing/payment", payload),
+  collectPayment(data) {
+    return api.post("/api/billing/payment", data);
+  },
 
-  refundPayment: (payload) => api.post("/billing/refund", payload),
+  refundPayment(data) {
+    return api.post("/api/billing/refund", data);
+  },
 
-  getInvoice: (billId) => api.get(`/billing/invoice/${billId}`),
+  getInvoice(billId) {
+    return api.get(`/api/billing/invoice/${billId}`);
+  },
 
-  getBillingHistory: () => api.get("/billing/history"),
-
-  getBillingReport: () => api.get("/billing/report"),
+  getBillingHistory() {
+    return api.get("/api/billing/history");
+  },
 };
