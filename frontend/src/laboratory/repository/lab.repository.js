@@ -1,11 +1,11 @@
 import api from "../../core/api/axios";
 
-const LabRepository = {
+const labRepository = {
   createTest(data) {
     return api.post("/api/lab/tests", data);
   },
 
-  getAllTests() {
+  getAllLabTests() {
     return api.get("/api/lab/tests");
   },
 
@@ -28,4 +28,4 @@ const LabRepository = {
   },
 };
 
-export default LabRepository;
+export default labRepository;

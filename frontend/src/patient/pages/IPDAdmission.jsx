@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import DoctorDropdown from "../components/DoctorDropdown";
 import BedSelector from "../components/BedSelector";
-import Card from "../../shared/components/Card";
+import Card from "../../shared/components/Card.jsx";
 import Button from "../../shared/components/Button";
 import Input from "../../shared/components/Input";
 import { ipdController } from "../../ipd/controller/ipd.controller";

@@ -1,126 +1,118 @@
-const Patient = require("./patient.model");
+const db = require("../../config/db");
 const generateId = require("../../utils/generateId");
 
 /**
  * CREATE PATIENT
- * Called by: controller → createPatient()
  */
-exports.createPatient = async (data, user) => {
-  // check duplicate mobile
-  if (data.mobile) {
-    const exists = await Patient.findOne({ where: { mobile: data.mobile } });
-    if (exists) {
-      throw new Error("Patient with this mobile already exists");
-    }
+exports.createPatient = async (data) => {
+  // Check if mobile already exists
+  const [existing] = await db.query("SELECT id FROM patients WHERE mobile = ?", [data.mobile]);
+  if (existing.length > 0) {
+    throw new Error("Patient with this mobile already exists");
   }
 
-  const patient = await Patient.create({
-    patientId: generateId("PAT"),
-    name: data.name,
-    mobile: data.mobile,
-    email: data.email || null,
-    gender: data.gender,
-    dob: data.dob,
-    bloodGroup: data.bloodGroup || null,
-    address: data.address || null,
-    emergencyContact: data.emergencyContact || null,
-    status: "ACTIVE",
-  });
+  const patientId = generateId("PAT");
+  const { name, mobile, email, gender, dob, bloodGroup, address, emergencyContact } = data;
 
-  return patient;
+  const [result] = await db.query(
+    `INSERT INTO patients (
+      patientId, name, mobile, email, gender, dob, 
+      bloodGroup, address, emergencyContact, status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE')`,
+    [patientId, name, mobile, email || null, gender, dob, bloodGroup || null, address || null, emergencyContact || null]
+  );
+
+  return { id: result.insertId, patientId, name };
 };
 
 /**
  * GET ALL PATIENTS
- * Called by: controller → getPatients()
  */
 exports.getPatients = async () => {
-  return await Patient.findAll({
-    order: [["createdAt", "DESC"]],
-  });
+  const [rows] = await db.query("SELECT * FROM patients ORDER BY createdAt DESC");
+  return rows;
 };
 
 /**
  * GET PATIENT BY ID
- * Called by: controller → getPatientById()
  */
 exports.getPatientById = async (id) => {
-  const patient = await Patient.findByPk(id);
-  if (!patient) {
+  const [rows] = await db.query("SELECT * FROM patients WHERE id = ?", [id]);
+  if (rows.length === 0) {
     throw new Error("Patient not found");
   }
-  return patient;
+  return rows[0];
 };
 
 /**
  * UPDATE PATIENT
- * Called by: controller → updatePatient()
  */
 exports.updatePatient = async (id, data) => {
-  const patient = await Patient.findByPk(id);
-  if (!patient) {
-    throw new Error("Patient not found");
-  }
+  const { name, mobile, email, gender, dob, bloodGroup, address, emergencyContact, status } = data;
 
-  await patient.update({
-    name: data.name ?? patient.name,
-    mobile: data.mobile ?? patient.mobile,
-    email: data.email ?? patient.email,
-    gender: data.gender ?? patient.gender,
-    dob: data.dob ?? patient.dob,
-    bloodGroup: data.bloodGroup ?? patient.bloodGroup,
-    address: data.address ?? patient.address,
-    emergencyContact: data.emergencyContact ?? patient.emergencyContact,
-    status: data.status ?? patient.status,
-  });
+  const [result] = await db.query(
+    `UPDATE patients SET 
+      name = ?, mobile = ?, email = ?, gender = ?, 
+      dob = ?, bloodGroup = ?, address = ?, 
+      emergencyContact = ?, status = ? 
+     WHERE id = ?`,
+    [name, mobile, email, gender, dob, bloodGroup, address, emergencyContact, status, id]
+  );
 
-  return patient;
+  if (result.affectedRows === 0) throw new Error("Patient not found");
+  return { id, ...data };
 };
 
 /**
  * DELETE PATIENT
- * Called by: controller → deletePatient()
  */
 exports.deletePatient = async (id) => {
-  const patient = await Patient.findByPk(id);
-  if (!patient) {
-    throw new Error("Patient not found");
-  }
-
-  await patient.destroy();
+  const [result] = await db.query("DELETE FROM patients WHERE id = ?", [id]);
+  if (result.affectedRows === 0) throw new Error("Patient not found");
   return true;
 };
 
 /**
- * UPLOAD PATIENT DOCUMENTS
- * Called by: controller → uploadDocuments()
+ * GET PATIENT HISTORY (OPD + IPD)
+ * Fetches data from multiple tables to give a full medical timeline
  */
-exports.uploadDocuments = async (patientId, files) => {
-  if (!files || Object.keys(files).length === 0) {
-    throw new Error("No documents uploaded");
-  }
+exports.getPatientHistory = async (patientId) => {
+  // 1. Get Patient Details
+  const [patient] = await db.query("SELECT * FROM patients WHERE id = ?", [patientId]);
+  if (patient.length === 0) throw new Error("Patient not found");
 
-  // placeholder for future patient_documents table
+  // 2. Get OPD History (Joined with Doctor Name)
+  const [opdVisits] = await db.query(
+    `SELECT o.*, u.name as doctorName 
+     FROM opd_visits o 
+     LEFT JOIN users u ON o.doctorId = u.id 
+     WHERE o.patientId = ? ORDER BY o.visitDate DESC`,
+    [patientId]
+  );
+
+  // 3. Get IPD History (Joined with Doctor Name)
+  const [ipdAdmissions] = await db.query(
+    `SELECT i.*, u.name as doctorName 
+     FROM ipd_admissions i 
+     LEFT JOIN users u ON i.doctorId = u.id 
+     WHERE i.patientId = ? ORDER BY i.admissionDate DESC`,
+    [patientId]
+  );
+
   return {
-    message: "Documents uploaded successfully",
-    documentsCount: Object.keys(files).length,
+    patient: patient[0],
+    opdVisits,
+    ipdAdmissions
   };
 };
 
 /**
- * GET PATIENT HISTORY (OPD + IPD)
- * Called by: controller → getPatientHistory()
+ * UPLOAD PATIENT DOCUMENTS
  */
-exports.getPatientHistory = async (patientId) => {
-  const patient = await Patient.findByPk(patientId);
-  if (!patient) {
-    throw new Error("Patient not found");
-  }
-
-  // future join with OPD & IPD tables
+exports.uploadDocuments = async (patientId, files) => {
+  // Logic to save file paths in a patient_documents table would go here
   return {
-    patientId: patient.patientId,
-    opdVisits: [],
-    ipdAdmissions: [],
+    message: "Documents uploaded successfully",
+    documentsCount: Object.keys(files).length,
   };
 };

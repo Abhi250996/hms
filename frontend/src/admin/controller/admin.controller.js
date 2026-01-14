@@ -1,4 +1,3 @@
-// src/admin/controller/admin.controller.js
 import { adminRepository } from "../repository/admin.repository";
 
 export const adminController = {
@@ -9,6 +8,18 @@ export const adminController = {
 
   async getUsers() {
     const res = await adminRepository.getUsers();
+    return res.data;
+  },
+
+  // Fixed: Named to match the .jsx call
+  async getSettings() {
+    const res = await adminRepository.getHospitalSettings();
+    return res.data;
+  },
+
+  // Fixed: Named to match the .jsx call
+  async updateSettings(data) {
+    const res = await adminRepository.updateHospitalSettings(data);
     return res.data;
   },
 
@@ -34,16 +45,6 @@ export const adminController = {
 
   async updatePermissions(roleId, permissions) {
     const res = await adminRepository.updatePermissions(roleId, permissions);
-    return res.data;
-  },
-
-  async getHospitalSettings() {
-    const res = await adminRepository.getHospitalSettings();
-    return res.data;
-  },
-
-  async updateHospitalSettings(data) {
-    const res = await adminRepository.updateHospitalSettings(data);
     return res.data;
   },
 

@@ -1,4 +1,3 @@
-// src/modules/admin/admin.routes.js
 const express = require("express");
 const router = express.Router();
 
@@ -39,6 +38,14 @@ router.get(
   authMiddleware,
   roleMiddleware("ADMIN"),
   adminController.getRoles
+);
+
+// Added missing GET route for initial settings load
+router.get(
+  "/settings",
+  authMiddleware,
+  roleMiddleware("ADMIN"),
+  adminController.getSettings
 );
 
 router.put(

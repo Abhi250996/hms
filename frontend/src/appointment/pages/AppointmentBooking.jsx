@@ -5,9 +5,9 @@ import { appointmentController } from "../controller/appointment.controller";
 import { doctorController } from "../../doctor/controller/doctor.controller";
 import { patientController } from "../../patient/controller/patient.controller";
 
-import Input from "../../shared/components/FormControls/Input";
-import Select from "../../shared/components/FormControls/Select";
-import DatePicker from "../../shared/components/FormControls/DatePicker";
+import Input from "../../shared/components/Input";
+import Select from "../../shared/components/Select";
+import DatePicker from "../../shared/components/DatePicker";
 import Loader from "../../shared/components/Loader";
 
 const AppointmentBooking = () => {

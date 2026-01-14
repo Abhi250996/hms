@@ -1,6 +1,5 @@
 import api from "../../core/api/axios";
-
-export const ReportsRepository = {
+ export const ReportsRepository = {
   dailyCollection: () => api.get("/reports/daily-collection"),
   doctorRevenue: () => api.get("/reports/doctor-revenue"),
   departmentRevenue: () => api.get("/reports/department"),

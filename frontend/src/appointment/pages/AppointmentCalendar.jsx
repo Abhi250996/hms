@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { appointmentController } from "../controller/appointment.controller";
 
-import DatePicker from "../../shared/components/FormControls/DatePicker";
+import DatePicker from "../../shared/components/DatePicker";
 import Loader from "../../shared/components/Loader";
 import Table from "../../shared/components/Table";
 

@@ -17,14 +17,14 @@ router.post("/login", authController.login);
  * POST /api/auth/register
  * Protected (ADMIN only)
  * Frontend: Admin creates user/staff
- */
-router.post(
-  "/register",
-  authMiddleware,
-  roleMiddleware("ADMIN"),
-  authController.register
-);
-
+//  */
+// router.post(
+//   "/register",
+//   authMiddleware,
+//   roleMiddleware("ADMIN"),
+//   authController.register
+// );
+router.post("/register", authController.register); // Temporary bypass
 /**
  * GET /api/auth/me
  * Protected

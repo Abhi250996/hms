@@ -1,10 +1,9 @@
 // src/admin/pages/UserManagement.jsx
 import { useEffect, useState } from "react";
-import AdminSidebar from "../components/AdminSidebar";
 import { adminController } from "../controller/admin.controller";
 import Loader from "../../shared/components/Loader";
-import Input from "../../shared/components/FormControls/Input";
-import Select from "../../shared/components/FormControls/Select";
+import Input from "../../shared/components/Input";
+import Select from "../../shared/components/Select";
 
 const initialForm = {
   staffId: "",
@@ -80,8 +79,7 @@ const UserManagement = () => {
 
   return (
     <div className="flex min-h-screen bg-slate-100">
-      <AdminSidebar />
-
+ 
       <main className="flex-1 p-8">
         <h1 className="text-2xl font-bold mb-1">User Management</h1>
         <p className="text-slate-500 mb-6">

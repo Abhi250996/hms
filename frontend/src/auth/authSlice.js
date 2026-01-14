@@ -1,4 +1,3 @@
-// src/auth/authSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { authController } from "./controller/auth.controller";
 
@@ -6,9 +5,12 @@ export const loginUser = createAsyncThunk(
   "auth/login",
   async (payload, { rejectWithValue }) => {
     try {
-      return await authController.login(payload);
+      const data = await authController.login(payload);
+      return data; // Usually { success: true, data: { user, token } }
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Login failed");
+      // Specifically capture the error message from the server
+      const message = err.response?.data?.message || "Invalid credentials. Please try again.";
+      return rejectWithValue(message);
     }
   }
 );
@@ -19,7 +21,7 @@ export const fetchProfile = createAsyncThunk(
     try {
       return await authController.getProfile();
     } catch (err) {
-      return rejectWithValue("Unauthorized");
+      return rejectWithValue("Session expired");
     }
   }
 );
@@ -38,7 +40,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.loading = false;
       state.error = null;
-      localStorage.clear();
+      localStorage.removeItem("token");
     },
   },
   extraReducers: (builder) => {
@@ -50,25 +52,16 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-        state.user = action.payload?.data?.user || null;
+        // Adjust the mapping based on your API structure (payload.data.user vs payload.user)
+        state.user = action.payload?.data?.user || action.payload?.user || null;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      .addCase(fetchProfile.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(fetchProfile.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload?.data || null;
+        state.user = action.payload?.data || action.payload || null;
         state.isAuthenticated = true;
-      })
-      .addCase(fetchProfile.rejected, (state) => {
-        state.loading = false;
-        state.isAuthenticated = false;
-        state.user = null;
-        localStorage.clear();
       });
   },
 });

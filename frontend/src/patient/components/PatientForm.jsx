@@ -1,6 +1,6 @@
 // src/patient/components/PatientForm.jsx
 import { useState } from "react";
-import Card from "../../shared/components/Card";
+import Card from "../../shared/components/Card.jsx";
 import Input from "../../shared/components/Input";
 import Select from "../../shared/components/Select";
 import Checkbox from "../../shared/components/Checkbox";

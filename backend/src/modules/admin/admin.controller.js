@@ -1,24 +1,11 @@
-// src/modules/admin/admin.controller.js
 const adminService = require("./admin.service");
 const { success, error } = require("../../utils/response");
 
-/**
- * POST /api/admin/users
- * Create staff/user (Admin only)
- */
 exports.createUser = async (req, res) => {
   try {
     const {
-      staffId,
-      name,
-      email,
-      mobile,
-      role,
-      designation,
-      department,
-      password,
-      status,
-      joiningDate,
+      staffId, name, email, mobile, role, designation,
+      department, password, status, joiningDate,
     } = req.body;
 
     if (!staffId || !name || !email || !role || !password) {
@@ -26,16 +13,7 @@ exports.createUser = async (req, res) => {
     }
 
     const user = await adminService.createUser({
-      staffId,
-      name,
-      email,
-      mobile,
-      role,
-      designation,
-      department,
-      password,
-      status,
-      joiningDate,
+      ...req.body,
       createdBy: req.user.id,
     });
 
@@ -45,9 +23,6 @@ exports.createUser = async (req, res) => {
   }
 };
 
-/**
- * GET /api/admin/users
- */
 exports.getUsers = async (req, res) => {
   try {
     const users = await adminService.getUsers();
@@ -57,9 +32,6 @@ exports.getUsers = async (req, res) => {
   }
 };
 
-/**
- * PUT /api/admin/users/:id
- */
 exports.updateUser = async (req, res) => {
   try {
     const user = await adminService.updateUser(req.params.id, req.body);
@@ -69,9 +41,6 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-/**
- * DELETE /api/admin/users/:id
- */
 exports.deleteUser = async (req, res) => {
   try {
     await adminService.deleteUser(req.params.id);
@@ -81,9 +50,6 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-/**
- * GET /api/admin/roles
- */
 exports.getRoles = async (req, res) => {
   try {
     const roles = await adminService.getRoles();
@@ -93,21 +59,26 @@ exports.getRoles = async (req, res) => {
   }
 };
 
-/**
- * PUT /api/admin/settings
- */
-exports.updateSettings = async (req, res) => {
+// Added missing getSettings controller function
+exports.getSettings = async (req, res) => {
   try {
-    const settings = await adminService.updateSettings(req.body);
-    return success(res, settings, "Settings updated");
+    const settings = await adminService.getSettings();
+    return success(res, settings, "Settings fetched");
   } catch (err) {
+    console.error("Controller Error:", err.message);
     return error(res, err.message);
   }
 };
 
-/**
- * GET /api/admin/audit-logs
- */
+exports.updateSettings = async (req, res) => {
+  try {
+    const settings = await adminService.updateSettings(req.body);
+    return success(res, settings, "Settings updated successfully");
+  } catch (err) {
+    console.error("Controller Error:", err.message);
+    return error(res, err.message, 400);
+  }
+};
 exports.getAuditLogs = async (req, res) => {
   try {
     const logs = await adminService.getAuditLogs();

@@ -41,21 +41,22 @@ export const fetchRoles = createAsyncThunk("admin/fetchRoles", async () => {
 
 // SETTINGS
 export const fetchSettings = createAsyncThunk(
-  "admin/fetchSettings",
+  "admin/settings",
   async () => {
-    const res = await adminRepository.getSettings();
+    // UPDATED to match repository
+    const res = await adminRepository.getHospitalSettings(); 
     return res.data.data;
   }
 );
 
 export const updateSettings = createAsyncThunk(
-  "admin/updateSettings",
+  "admin/settings",
   async (payload) => {
-    const res = await adminRepository.updateSettings(payload);
+    // UPDATED to match repository
+    const res = await adminRepository.updateHospitalSettings(payload);
     return res.data.data;
   }
 );
-
 // AUDIT LOGS
 export const fetchAuditLogs = createAsyncThunk(
   "admin/fetchAuditLogs",

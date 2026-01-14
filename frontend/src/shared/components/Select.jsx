@@ -34,7 +34,7 @@ const Select = forwardRef(
 			</div>
 		);
 	})
-);
+;
 
 export default Select;
 
