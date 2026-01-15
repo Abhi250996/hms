@@ -50,16 +50,27 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
+// Cleaned up: Single getRoles function using success utility
 exports.getRoles = async (req, res) => {
   try {
-    const roles = await adminService.getRoles();
-    return success(res, roles, "Roles fetched");
+    // You can either fetch from DB via Service or hardcode here
+    // If you hardcode, do it like this to stay consistent with your API:
+    const roles = [
+      "ADMIN", 
+      "DOCTOR", 
+      "STAFF", 
+      "RECEPTIONIST", 
+      "PHARMACIST", 
+      "LAB_TECHNICIAN", 
+      "NURSE"
+    ];
+    
+    return success(res, roles, "Roles fetched successfully");
   } catch (err) {
     return error(res, err.message);
   }
 };
 
-// Added missing getSettings controller function
 exports.getSettings = async (req, res) => {
   try {
     const settings = await adminService.getSettings();
@@ -79,6 +90,7 @@ exports.updateSettings = async (req, res) => {
     return error(res, err.message, 400);
   }
 };
+
 exports.getAuditLogs = async (req, res) => {
   try {
     const logs = await adminService.getAuditLogs();

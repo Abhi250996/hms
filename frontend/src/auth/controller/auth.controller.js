@@ -4,13 +4,19 @@ import { authRepository } from "../repository/auth.repository";
 export const authController = {
   async login(payload) {
     const response = await authRepository.login(payload);
+    
+    // Extracting nested data based on your API structure (data.data)
+    const data = response?.data?.data; 
+    const token = data?.token;
+    const user = data?.user;
 
-    const token = response?.data?.data?.token;
-    if (token) {
+    if (token && user) {
       localStorage.setItem("token", token);
+      localStorage.setItem("role", user.role); // CRITICAL: Saved for SidebarSwitcher
+      localStorage.setItem("user", JSON.stringify(user)); // Saved for Profile
     }
 
-    return response.data;
+    return response.data; // Return full response to the component
   },
 
   async register(payload) {
@@ -24,8 +30,7 @@ export const authController = {
   },
 
   logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.clear(); // Clears token, role, and user at once
     window.location.href = "/login";
   },
 };

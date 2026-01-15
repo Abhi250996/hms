@@ -11,7 +11,7 @@ export const getAllLabTests = async () => {
   return res.data?.data || res.data || []; 
 };
 
-export const getTestById = async (id) => {
+export const getLabTestById = async (id) => {
   const res = await labRepository.getTestById(id);
   return res.data;
 };

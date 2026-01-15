@@ -1,33 +1,50 @@
 const db = require("../../config/db");
 const generateId = require("../../utils/generateId");
-
+const { QueryTypes } = require("sequelize"); // Import this!
 /**
  * CREATE PATIENT
  */
-exports.createPatient = async (data) => {
-  // Check if mobile already exists
-  const [existing] = await db.query("SELECT id FROM patients WHERE mobile = ?", [data.mobile]);
-  if (existing.length > 0) {
-    throw new Error("Patient with this mobile already exists");
+// src/services/patient.service.js
+exports.createPatient = async (data, currentUser) => {
+  const { name, mobile, email, gender, dob, bloodGroup, address, emergencyContact } = data;
+
+  // 1. Check if patient exists
+  const [existing] = await db.query(
+    "SELECT id FROM patients WHERE mobile = ?", 
+    { replacements: [mobile] }
+  );
+
+  if (existing && existing.length > 0) {
+    throw new Error("Patient with this mobile number already exists");
   }
 
   const patientId = generateId("PAT");
-  const { name, mobile, email, gender, dob, bloodGroup, address, emergencyContact } = data;
 
+  // 2. Insert into DB
   const [result] = await db.query(
     `INSERT INTO patients (
       patientId, name, mobile, email, gender, dob, 
-      bloodGroup, address, emergencyContact, status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE')`,
-    [patientId, name, mobile, email || null, gender, dob, bloodGroup || null, address || null, emergencyContact || null]
+      bloodGroup, address, emergencyContact, status, createdBy
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE', ?)`,
+    {
+      replacements: [
+        patientId,
+        name,
+        mobile,
+        email || null,
+        gender,
+        dob,
+        bloodGroup || null,
+        address || null,
+        emergencyContact || null,
+        currentUser?.id || null
+      ]
+    }
   );
 
-  return { id: result.insertId, patientId, name };
+  return { id: result, patientId, name };
 };
-
-/**
- * GET ALL PATIENTS
- */
+ 
 exports.getPatients = async () => {
   const [rows] = await db.query("SELECT * FROM patients ORDER BY createdAt DESC");
   return rows;

@@ -13,19 +13,24 @@ const AuditLogs = () => {
     fetchLogs();
   }, []);
 
-  const fetchLogs = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      const res = await adminController.getAuditLogs();
-      setLogs(res?.data || []);
-    } catch (err) {
-      console.error("Audit log error:", err);
-      setError("Failed to load audit logs");
-    } finally {
-      setLoading(false);
-    }
-  };
+ const fetchLogs = async () => {
+  try {
+    setLoading(true);
+    setError("");
+    const res = await adminController.getAuditLogs();
+    
+    // Check if the structure is res.data.data (standard for your setup)
+    const logData = res?.data?.data || res?.data || [];
+    setLogs(logData);
+  } catch (err) {
+    console.error("Audit log error:", err);
+    // Extract the specific backend message
+    const serverMessage = err.response?.data?.message || "Failed to load audit logs";
+    setError(serverMessage);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <>

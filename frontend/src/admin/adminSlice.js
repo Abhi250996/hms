@@ -1,4 +1,3 @@
-// src/admin/adminSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { adminRepository } from "./repository/admin.repository";
 
@@ -7,64 +6,80 @@ import { adminRepository } from "./repository/admin.repository";
 ======================= */
 
 // USERS
-export const fetchUsers = createAsyncThunk("admin/fetchUsers", async () => {
-  const res = await adminRepository.getUsers();
-  return res.data.data;
+export const fetchUsers = createAsyncThunk("admin/fetchUsers", async (_, { rejectWithValue }) => {
+  try {
+    const res = await adminRepository.getUsers();
+    return res.data.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || "Failed to fetch users");
+  }
 });
 
-export const createUser = createAsyncThunk(
-  "admin/createUser",
-  async (payload) => {
+export const createUser = createAsyncThunk("admin/createUser", async (payload, { rejectWithValue }) => {
+  try {
     const res = await adminRepository.createUser(payload);
     return res.data.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || "Failed to create user");
   }
-);
+});
 
-export const updateUser = createAsyncThunk(
-  "admin/updateUser",
-  async ({ id, data }) => {
+export const updateUser = createAsyncThunk("admin/updateUser", async ({ id, data }, { rejectWithValue }) => {
+  try {
     const res = await adminRepository.updateUser(id, data);
     return res.data.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || "Failed to update user");
   }
-);
+});
 
-export const deleteUser = createAsyncThunk("admin/deleteUser", async (id) => {
-  await adminRepository.deleteUser(id);
-  return id;
+export const deleteUser = createAsyncThunk("admin/deleteUser", async (id, { rejectWithValue }) => {
+  try {
+    await adminRepository.deleteUser(id);
+    return id;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || "Failed to delete user");
+  }
 });
 
 // ROLES
-export const fetchRoles = createAsyncThunk("admin/fetchRoles", async () => {
-  const res = await adminRepository.getRoles();
-  return res.data.data;
+export const fetchRoles = createAsyncThunk("admin/fetchRoles", async (_, { rejectWithValue }) => {
+  try {
+    const res = await adminRepository.getRoles();
+    return res.data.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || "Failed to fetch roles");
+  }
 });
 
-// SETTINGS
-export const fetchSettings = createAsyncThunk(
-  "admin/settings",
-  async () => {
-    // UPDATED to match repository
-    const res = await adminRepository.getHospitalSettings(); 
+// SETTINGS (Fixed unique action strings)
+export const fetchSettings = createAsyncThunk("admin/fetchSettings", async (_, { rejectWithValue }) => {
+  try {
+    const res = await adminRepository.getHospitalSettings();
     return res.data.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || "Failed to fetch settings");
   }
-);
+});
 
-export const updateSettings = createAsyncThunk(
-  "admin/settings",
-  async (payload) => {
-    // UPDATED to match repository
+export const updateSettings = createAsyncThunk("admin/updateSettings", async (payload, { rejectWithValue }) => {
+  try {
     const res = await adminRepository.updateHospitalSettings(payload);
     return res.data.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || "Failed to update settings");
   }
-);
+});
+
 // AUDIT LOGS
-export const fetchAuditLogs = createAsyncThunk(
-  "admin/fetchAuditLogs",
-  async (params) => {
+export const fetchAuditLogs = createAsyncThunk("admin/fetchAuditLogs", async (params, { rejectWithValue }) => {
+  try {
     const res = await adminRepository.getAuditLogs(params);
     return res.data.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || "Failed to fetch audit logs");
   }
-);
+});
 
 /* =======================
    SLICE
@@ -80,13 +95,17 @@ const adminSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    clearAdminError: (state) => {
+      state.error = null;
+    }
+  },
   extraReducers: (builder) => {
     builder
-
-      // USERS
+      /* USERS CASES */
       .addCase(fetchUsers.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
         state.loading = false;
@@ -94,7 +113,7 @@ const adminSlice = createSlice({
       })
       .addCase(fetchUsers.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
       })
 
       .addCase(createUser.fulfilled, (state, action) => {
@@ -112,12 +131,12 @@ const adminSlice = createSlice({
         state.users = state.users.filter((u) => u.id !== action.payload);
       })
 
-      // ROLES
+      /* ROLES CASES */
       .addCase(fetchRoles.fulfilled, (state, action) => {
         state.roles = action.payload;
       })
 
-      // SETTINGS
+      /* SETTINGS CASES */
       .addCase(fetchSettings.fulfilled, (state, action) => {
         state.settings = action.payload;
       })
@@ -125,11 +144,20 @@ const adminSlice = createSlice({
         state.settings = action.payload;
       })
 
-      // AUDIT LOGS
+      /* AUDIT LOGS CASES */
+      .addCase(fetchAuditLogs.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(fetchAuditLogs.fulfilled, (state, action) => {
+        state.loading = false;
         state.auditLogs = action.payload;
+      })
+      .addCase(fetchAuditLogs.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
 
+export const { clearAdminError } = adminSlice.actions;
 export default adminSlice.reducer;

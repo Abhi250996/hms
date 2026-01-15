@@ -1,5 +1,5 @@
 const db = require('../../config/db');
-
+const { QueryTypes } = require('sequelize');
 /**
  * Create doctor / nurse / staff
  */
@@ -53,22 +53,53 @@ exports.getUsers = async (role) => {
  * Update User
  */
 exports.updateUser = async (id, data) => {
-  const { name, email, mobile, designation, department, status } = data;
-  
-  await db.query(
-    `UPDATE users SET name=?, email=?, mobile=?, designation=?, department=?, status=? WHERE id=?`,
-    [name, email, mobile, designation, department, status, id]
-  );
-  
-  return { id, ...data };
+  try {
+    const query = `
+      UPDATE users 
+      SET 
+        name = ?, 
+        email = ?, 
+        mobile = ?, 
+        role = ?, 
+        designation = ?, 
+        department = ?, 
+        status = ?, 
+        joiningDate = ?
+      WHERE id = ?
+    `;
+
+    const [result] = await db.query(query, {
+      replacements: [
+        data.name, 
+        data.email, 
+        data.mobile, 
+        data.role, 
+        data.designation, 
+        data.department, 
+        data.status, 
+        data.joiningDate,
+        id // This matches the final WHERE id = ?
+      ]
+    });
+
+    return result;
+  } catch (err) {
+    throw new Error(err.message);
+  }
 };
 
 /**
  * Delete User
  */
 exports.deleteUser = async (id) => {
-  await db.query(`DELETE FROM users WHERE id = ?`, [id]);
-  return true;
+  // Check if it's the super admin
+  if (id == 1) throw new Error("System Administrator cannot be deleted.");
+
+  // Instead of DELETE, we UPDATE the status
+  return await db.query(
+    "UPDATE users SET status = 'INACTIVE' WHERE id = ?",
+    { replacements: [id] }
+  );
 };
 
 /**
@@ -78,12 +109,35 @@ exports.getRoles = async () => {
   const [rows] = await db.query(`SELECT DISTINCT role FROM users`);
   return rows.map(r => r.role);
 };
-
+ 
+exports.createAuditLog = async (data) => {
+  try {
+    await sequelize.query(
+      `INSERT INTO audit_logs (module, action, recordId, userId, createdAt) 
+       VALUES (?, ?, ?, ?, NOW())`,
+      {
+        replacements: [data.module, data.action, data.recordId, data.userId],
+        type: QueryTypes.INSERT // This is what was causing the error
+      }
+    );
+  } catch (error) {
+    console.error("Audit Log Service Error:", error.message);
+  }
+};
 exports.getAuditLogs = async () => {
-  // If you have an audit_logs table:
-  const [rows] = await db.query(`SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 100`);
-  return rows;
-};exports.updateSettings = async (data) => {
+  // Added error handling to catch if table doesn't exist
+  try {
+    return await db.query(
+      `SELECT id, userName, role, action, module, referenceId, ipAddress, createdAt 
+       FROM audit_logs ORDER BY createdAt DESC LIMIT 100`,
+      { type: QueryTypes.SELECT }
+    );
+  } catch (err) {
+    console.error("Audit Log Service Error:", err.message);
+    throw new Error("Audit log table missing. Please run the SQL migration.");
+  }
+};
+exports.updateSettings = async (data) => {
   const { 
     hospitalName, registrationNumber, phone, email, 
     address, tax, currency, timezone 

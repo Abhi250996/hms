@@ -6,41 +6,22 @@ const patientService = require("./patient.service");
  */
 exports.createPatient = async (req, res) => {
   try {
-    const {
-      name,
-      mobile,
-      gender,
-      dob,
-      email,
-      address,
-      bloodGroup,
-      emergencyContact,
-    } = req.body;
+    const { name, mobile, gender, dob } = req.body;
 
+    // 1. Basic Validation
     if (!name || !mobile || !gender || !dob) {
       return res.status(422).json({ message: "Required fields missing" });
     }
 
-    const patient = await patientService.createPatient(
-      {
-        name,
-        mobile,
-        gender,
-        dob,
-        email,
-        address,
-        bloodGroup,
-        emergencyContact,
-      },
-      req.user
-    );
+    // 2. Delegate to Service (Pass req.user if you need to track who created it)
+    const patient = await patientService.createPatient(req.body, req.user);
 
     res.status(201).json(patient);
   } catch (error) {
+    // If service throws "Patient already exists", it catches here
     res.status(400).json({ message: error.message });
   }
 };
-
 /**
  * GET /api/patients
  * Get all patients

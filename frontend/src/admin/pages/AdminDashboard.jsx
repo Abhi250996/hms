@@ -8,6 +8,7 @@ import { ReportsController } from "../../reports/controller/reports.controller";
 // SHARED COMPONENTS
 import Loader from "../../shared/components/Loader";
 import Table from "../../shared/components/Table";
+import AdminSidebar from "../../layouts/sidebars/AdminSidebar";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -70,6 +71,7 @@ const AdminDashboard = () => {
       )}
 
       {/* HEADER */}
+      {/* <AdminSidebar/> */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-800">Admin Dashboard</h1>
         <p className="text-sm text-slate-500">

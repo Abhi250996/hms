@@ -1,9 +1,12 @@
+// src/layouts/sidebars/DoctorSidebar.jsx
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../auth/authSlice";
 
-const navItem = "block px-4 py-2 rounded-md text-slate-300 hover:bg-slate-700";
-const activeNavItem = "block px-4 py-2 rounded-md bg-slate-800 text-white";
+const navItem =
+  "block px-4 py-2 rounded-md text-slate-300 hover:bg-slate-700";
+const activeNavItem =
+  "block px-4 py-2 rounded-md bg-slate-800 text-white font-medium";
 
 const DoctorSidebar = () => {
   const dispatch = useDispatch();
@@ -22,33 +25,47 @@ const DoctorSidebar = () => {
       </div>
 
       <nav className="flex-1 px-4 py-6 space-y-1">
+
+        {/* ✅ EXISTS */}
         <NavLink
           to="/doctor/dashboard"
-          className={({ isActive }) => (isActive ? activeNavItem : navItem)}
+          className={({ isActive }) =>
+            isActive ? activeNavItem : navItem
+          }
         >
           Dashboard
         </NavLink>
 
+        {/* ✅ Doctor consults patients via patient list */}
         <NavLink
-          to="/opd"
-          className={({ isActive }) => (isActive ? activeNavItem : navItem)}
+          to="/patients"
+          className={({ isActive }) =>
+            isActive ? activeNavItem : navItem
+          }
         >
-          OPD Visits
+          Patients
         </NavLink>
 
+        {/* ✅ EXISTS */}
         <NavLink
-          to="/ipd"
-          className={({ isActive }) => (isActive ? activeNavItem : navItem)}
+          to="/doctor/profile"
+          className={({ isActive }) =>
+            isActive ? activeNavItem : navItem
+          }
         >
-          IPD Patients
+          My Profile
         </NavLink>
 
+        {/* ⚠️ OPTIONAL – only if doctor sees lab reports */}
         <NavLink
           to="/lab/tests"
-          className={({ isActive }) => (isActive ? activeNavItem : navItem)}
+          className={({ isActive }) =>
+            isActive ? activeNavItem : navItem
+          }
         >
           Lab Reports
         </NavLink>
+
       </nav>
 
       <div className="p-4 border-t border-slate-800">

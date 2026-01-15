@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getLabTestById } from "../controller/lab.controller";
 import Loader from "../../shared/components/Loader";
-import { formatDate } from "../../utils/date";
-
+import { formatDate } from "../../core/utils/date";
+ 
 const LabReport = () => {
   const { id } = useParams();
   const navigate = useNavigate();

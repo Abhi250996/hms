@@ -1,74 +1,19 @@
-// src/modules/reports/reports.controller.js
 const reportsService = require("./reports.service");
 
-/**
- * GET /api/reports/daily-collection
- */
-exports.dailyCollection = async (req, res) => {
+// Helper to reduce boilerplate
+const sendResponse = async (req, res, serviceMethod) => {
   try {
-    const data = await reportsService.dailyCollection();
+    const data = await serviceMethod();
     res.status(200).json(data);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error(`Report Error [${req.originalUrl}]:`, error.message);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
 
-/**
- * GET /api/reports/doctor-revenue
- */
-exports.doctorRevenue = async (req, res) => {
-  try {
-    const data = await reportsService.doctorRevenue();
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-/**
- * GET /api/reports/department
- */
-exports.departmentRevenue = async (req, res) => {
-  try {
-    const data = await reportsService.departmentRevenue();
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-/**
- * GET /api/reports/patient
- */
-exports.patientStats = async (req, res) => {
-  try {
-    const data = await reportsService.patientStats();
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-/**
- * GET /api/reports/bed-occupancy
- */
-exports.bedOccupancy = async (req, res) => {
-  try {
-    const data = await reportsService.bedOccupancy();
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-/**
- * GET /api/reports/inventory
- */
-exports.inventoryReport = async (req, res) => {
-  try {
-    const data = await reportsService.inventoryReport();
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
+exports.dailyCollection = (req, res) => sendResponse(req, res, reportsService.dailyCollection);
+exports.doctorRevenue = (req, res) => sendResponse(req, res, reportsService.doctorRevenue);
+exports.departmentRevenue = (req, res) => sendResponse(req, res, reportsService.departmentRevenue);
+exports.patientStats = (req, res) => sendResponse(req, res, reportsService.patientStats);
+exports.bedOccupancy = (req, res) => sendResponse(req, res, reportsService.bedOccupancy);
+exports.inventoryReport = (req, res) => sendResponse(req, res, reportsService.inventoryReport);
