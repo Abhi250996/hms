@@ -26,7 +26,7 @@ import IPDAdmission from "./patient/pages/IPDAdmission";
 import TestOrderList from "./laboratory/pages/TestOrderList";
 import MedicineInventory from "./pharmacy/pages/MedicineInventory";
 import BillHistory from "./billing/pages/BillHistory";
-import AdminSidebar from "./admin/components/AdminSidebar";
+import SidebarSwitcher from "./layouts/sidebars/SidebarSwitcher";
 // REPORTS
 import ReportsDashboard from "./reports/pages/ReportsDashboard";
 import BedOccupancy from "./reports/pages/BedOccupancy";
@@ -35,12 +35,14 @@ import DepartmentRevenue from "./reports/pages/DepartmentRevenue";
 import DoctorRevenue from "./reports/pages/DoctorRevenue";
 import InventoryReport from "./reports/pages/InventoryReport";
 import PatientStats from "./reports/pages/PatientStats";
+import SidebarSwitcher from "./layouts/sidebars/SidebarSwitcher";
 
 const App = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   return (
     <Router>
+      <SidebarSwitcher />
       <Routes>
         {/* PUBLIC */}
         <Route path="/login" element={<Login />} />
@@ -51,7 +53,7 @@ const App = () => {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <div className="flex min-h-screen bg-gray-100">
-                <AdminSidebar />
+                <SidebarSwitcher />
                 <main className="flex-1 p-6 overflow-y-auto">
                   <Routes>
                     {/* Default path for logged-in users */}
