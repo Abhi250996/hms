@@ -1,4 +1,4 @@
-// src/layouts/sidebars/DoctorSidebar.jsx
+// src/layouts/sidebars/LabTechnicianSidebar.jsx
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../auth/authSlice";
@@ -8,7 +8,7 @@ const navItem =
 const activeNavItem =
   "block px-4 py-2 rounded-md bg-slate-800 text-white font-medium";
 
-const DoctorSidebar = () => {
+const LabTechnicianSidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -22,66 +22,70 @@ const DoctorSidebar = () => {
     <aside className="w-64 min-h-screen bg-slate-900 text-white flex flex-col">
       {/* HEADER */}
       <div className="h-16 flex items-center justify-center border-b border-slate-800">
-        <h2 className="text-xl font-bold tracking-wide">Doctor Panel</h2>
+        <h2 className="text-xl font-bold tracking-wide flex items-center gap-2">
+          <span>🧪</span> LAB PANEL
+        </h2>
       </div>
 
       {/* NAVIGATION */}
       <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
         <p className="text-xs font-semibold text-slate-500 uppercase px-4 mb-2">
-          Main
+          Specimen Workflow
         </p>
-        <NavLink
-          to="/doctor/dashboard"
-          className={({ isActive }) => (isActive ? activeNavItem : navItem)}
-        >
-          Dashboard
-        </NavLink>
 
-        <p className="text-xs font-semibold text-slate-500 uppercase px-4 mt-6 mb-2">
-          Patient Management
-        </p>
-        <NavLink
-          to="/patients"
-          className={({ isActive }) => (isActive ? activeNavItem : navItem)}
-        >
-          Patient List
-        </NavLink>
-
-        {/* Linked to IPD Admission route in App.jsx */}
-        <NavLink
-          to="/ipd/admit"
-          className={({ isActive }) => (isActive ? activeNavItem : navItem)}
-        >
-          IPD Admissions
-        </NavLink>
-
-        <p className="text-xs font-semibold text-slate-500 uppercase px-4 mt-6 mb-2">
-          Clinical
-        </p>
-        {/* Lab Results/Tests for medical review */}
+        {/* View all incoming orders from doctors */}
         <NavLink
           to="/lab/tests"
           className={({ isActive }) => (isActive ? activeNavItem : navItem)}
         >
+          Test Requests
+        </NavLink>
+
+        {/* Process for phlebotomy/sample gathering */}
+        <NavLink
+          to="/lab/sample-collection"
+          className={({ isActive }) => (isActive ? activeNavItem : navItem)}
+        >
+          Sample Collection
+        </NavLink>
+
+        <p className="text-xs font-semibold text-slate-500 uppercase px-4 mt-6 mb-2">
+          Analysis
+        </p>
+
+        {/* Link to the test list to select a specimen for data entry */}
+        <NavLink
+          to="/lab/tests"
+          className={({ isActive }) =>
+            isActive && window.location.pathname.includes("result")
+              ? activeNavItem
+              : navItem
+          }
+        >
+          Result Entry
+        </NavLink>
+
+        {/* Link to view/print finalized reports */}
+        <NavLink
+          to="/lab/tests"
+          className={({ isActive }) =>
+            isActive && window.location.pathname.includes("report")
+              ? activeNavItem
+              : navItem
+          }
+        >
           Lab Reports
         </NavLink>
 
-        {/* Inventory for doctor to check medicine availability */}
+        <p className="text-xs font-semibold text-slate-500 uppercase px-4 mt-6 mb-2">
+          Inventory
+        </p>
+        {/* Lab technicians often need to check reagent/chemical stock */}
         <NavLink
           to="/pharmacy/medicines"
           className={({ isActive }) => (isActive ? activeNavItem : navItem)}
         >
-          Medicine Stock
-        </NavLink>
-
-        <p className="text-xs font-semibold text-slate-500 uppercase px-4 mt-6 mb-2">
-          Account
-        </p>
-        <NavLink
-          to="/doctor/profile"
-          className={({ isActive }) => (isActive ? activeNavItem : navItem)}
-        >
-          My Profile
+          Reagent Stock
         </NavLink>
       </nav>
 
@@ -93,9 +97,13 @@ const DoctorSidebar = () => {
         >
           <span>Logout</span>
         </button>
+
+        <p className="mt-3 text-[10px] text-slate-500 text-center uppercase tracking-widest">
+          Laboratory System 2026
+        </p>
       </div>
     </aside>
   );
 };
 
-export default DoctorSidebar;
+export default LabTechnicianSidebar;

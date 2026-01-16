@@ -1,4 +1,4 @@
-// src/layouts/sidebars/DoctorSidebar.jsx
+// src/layouts/sidebars/ReceptionistSidebar.jsx
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../auth/authSlice";
@@ -8,7 +8,7 @@ const navItem =
 const activeNavItem =
   "block px-4 py-2 rounded-md bg-slate-800 text-white font-medium";
 
-const DoctorSidebar = () => {
+const ReceptionistSidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -22,24 +22,22 @@ const DoctorSidebar = () => {
     <aside className="w-64 min-h-screen bg-slate-900 text-white flex flex-col">
       {/* HEADER */}
       <div className="h-16 flex items-center justify-center border-b border-slate-800">
-        <h2 className="text-xl font-bold tracking-wide">Doctor Panel</h2>
+        <h2 className="text-xl font-bold tracking-wide">RECEPTION</h2>
       </div>
 
       {/* NAVIGATION */}
       <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
         <p className="text-xs font-semibold text-slate-500 uppercase px-4 mb-2">
-          Main
+          Registration
         </p>
+
         <NavLink
-          to="/doctor/dashboard"
+          to="/patients/new"
           className={({ isActive }) => (isActive ? activeNavItem : navItem)}
         >
-          Dashboard
+          Register Patient
         </NavLink>
 
-        <p className="text-xs font-semibold text-slate-500 uppercase px-4 mt-6 mb-2">
-          Patient Management
-        </p>
         <NavLink
           to="/patients"
           className={({ isActive }) => (isActive ? activeNavItem : navItem)}
@@ -47,41 +45,23 @@ const DoctorSidebar = () => {
           Patient List
         </NavLink>
 
-        {/* Linked to IPD Admission route in App.jsx */}
-        <NavLink
-          to="/ipd/admit"
-          className={({ isActive }) => (isActive ? activeNavItem : navItem)}
-        >
-          IPD Admissions
-        </NavLink>
-
         <p className="text-xs font-semibold text-slate-500 uppercase px-4 mt-6 mb-2">
-          Clinical
+          Front Desk
         </p>
-        {/* Lab Results/Tests for medical review */}
+
+        {/* Note: Ensure /appointments is defined in your App.jsx */}
         <NavLink
-          to="/lab/tests"
+          to="/appointments"
           className={({ isActive }) => (isActive ? activeNavItem : navItem)}
         >
-          Lab Reports
+          Appointments
         </NavLink>
 
-        {/* Inventory for doctor to check medicine availability */}
         <NavLink
-          to="/pharmacy/medicines"
+          to="/billing/history"
           className={({ isActive }) => (isActive ? activeNavItem : navItem)}
         >
-          Medicine Stock
-        </NavLink>
-
-        <p className="text-xs font-semibold text-slate-500 uppercase px-4 mt-6 mb-2">
-          Account
-        </p>
-        <NavLink
-          to="/doctor/profile"
-          className={({ isActive }) => (isActive ? activeNavItem : navItem)}
-        >
-          My Profile
+          Billing
         </NavLink>
       </nav>
 
@@ -93,9 +73,13 @@ const DoctorSidebar = () => {
         >
           <span>Logout</span>
         </button>
+
+        <p className="mt-3 text-[10px] text-slate-500 text-center uppercase tracking-widest">
+          2026 HMS System
+        </p>
       </div>
     </aside>
   );
 };
 
-export default DoctorSidebar;
+export default ReceptionistSidebar;
